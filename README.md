@@ -1,7 +1,7 @@
 # Website
 **Im not using github pages and rather firebase so here is the website link**
 
-**https://grade-calculator-3.web.app**
+**[https://grade-calculator-3.web.app](https://grade-calculator-3.web.app/login.html)**
 
 
 
