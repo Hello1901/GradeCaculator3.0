@@ -1,7 +1,7 @@
 # Website
 **Im not using github pages and rather firebase so here is the website link**
 
-https://grade-calculator-3.firebaseapp.com/
+https://grade-calculator-3.web.app
 
 
 # Grade Calculator 3.0
