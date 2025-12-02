@@ -1,3 +1,9 @@
+#Website
+**Im not using github pages and rather firebase so here is the website link**
+**grade-calculator-3.firebaseapp.com**
+
+
+
 # Grade Calculator 3.0
 
 A modern, feature-rich grade calculator for the Hungarian grading system with cloud synchronization, dark mode, and advanced analytics.
