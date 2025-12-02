@@ -1,0 +1,98 @@
+/* Dark Mode Styles */
+
+body.dark-mode {
+    --primary-green: #948979;
+    --light-green: #393E46;
+    --pale-green: #222831;
+    --off-white: #DFD0B8;
+    --text-dark: #DFD0B8;
+    --shadow-light: rgba(148, 137, 121, 0.3);
+    --shadow-dark: rgba(148, 137, 121, 0.5);
+
+    background: linear-gradient(135deg, #222831 0%, #393E46 50%, #948979 100%);
+    color: var(--off-white);
+}
+
+body.dark-mode .card {
+    background: #2a2f38;
+    border-color: #393E46;
+}
+
+body.dark-mode .input-field {
+    background: #2a2f38;
+    border-color: #393E46;
+    color: var(--off-white);
+}
+
+body.dark-mode .range-input {
+    background: #2a2f38;
+    border-color: #393E46;
+    color: var(--off-white);
+}
+
+body.dark-mode .grade-row {
+    background: rgba(57, 62, 70, 0.3);
+}
+
+body.dark-mode .user-profile {
+    background: #2a2f38;
+}
+
+body.dark-mode .section-title {
+    color: var(--off-white);
+}
+
+body.dark-mode .input-label {
+    color: var(--off-white);
+}
+
+body.dark-mode .grade-name {
+    color: var(--off-white);
+}
+
+body.dark-mode .user-email {
+    color: var(--off-white);
+}
+
+body.dark-mode .subtitle {
+    color: var(--primary-green);
+}
+
+/* Dark mode notification adjustments */
+body.dark-mode .notification-item {
+    --background-color: #2a2f38;
+    --grid-color: rgba(148, 137, 121, 0.2);
+}
+
+/* Dark mode for auth pages */
+body.dark-mode .auth-container {
+    background: #2a2f38;
+    border-color: #393E46;
+}
+
+body.dark-mode .auth-title {
+    color: var(--off-white);
+}
+
+/* Dark mode chart adjustments */
+body.dark-mode #gradeChart {
+    filter: brightness(0.9);
+}
+
+/* Dark mode table styles */
+body.dark-mode .grade-table {
+    background: #2a2f38;
+}
+
+body.dark-mode .grade-table th {
+    background: linear-gradient(45deg, #393E46, #948979);
+}
+
+body.dark-mode .grade-table td {
+    border-bottom-color: rgba(148, 137, 121, 0.3);
+    color: var(--off-white);
+}
+
+body.dark-mode .grade-table tbody tr:hover {
+    background: rgba(57, 62, 70, 0.3);
+}

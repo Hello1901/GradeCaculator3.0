@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Grade Calculator 3.0</title>
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/dark-mode.css">
+    <link rel="stylesheet" href="css/components.css">
+    <style>
+        .auth-container {
+            max-width: 500px;
+            margin: 100px auto;
+            background: var(--off-white);
+            border: 3px solid var(--light-green);
+            border-radius: 25px;
+            padding: 40px;
+            box-shadow: 0 10px 30px var(--shadow-light);
+        }
+        
+        .auth-title {
+            text-align: center;
+            font-size: 2.5rem;
+            font-weight: 900;
+            margin-bottom: 30px;
+            color: var(--primary-green);
+        }
+        
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .checkbox-group input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+        
+        .checkbox-group label {
+            font-weight: 600;
+            color: var(--primary-green);
+            cursor: pointer;
+        }
+        
+        .auth-links {
+            text-align: center;
+            margin-top: 20px;
+        }
+        
+        .btn-guest {
+            background: linear-gradient(45deg, var(--grade-3), var(--grade-2));
+            margin-top: 15px;
+        }
+        
+        .theme-toggle-auth {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+        }
+    </style>
+</head>
+<body>
+    <button class="theme-toggle theme-toggle-auth" onclick="toggleTheme()">🌙 Dark Mode</button>
+    
+    <div class="auth-container">
+        <h1 class="auth-title">Login</h1>
+        
+        <form id="loginForm">
+            <div class="input-group">
+                <label class="input-label">Email:</label>
+                <input type="email" id="email" class="input-field" placeholder="your.email@example.com" required>
+            </div>
+            
+            <div class="input-group">
+                <label class="input-label">Password:</label>
+                <input type="password" id="password" class="input-field" placeholder="Enter your password" required>
+            </div>
+            
+            <div class="checkbox-group">
+                <input type="checkbox" id="keepLoggedIn" checked>
+                <label for="keepLoggedIn">Keep me logged in (30 days)</label>
+            </div>
+            
+            <button type="submit" class="btn">Login</button>
+            
+            <button type="button" class="btn btn-guest" onclick="continueAsGuest()">Continue as Guest</button>
+        </form>
+        
+        <div class="auth-links">
+            <p>Don't have an account? <a href="register.html">Register here</a></p>
+        </div>
+    </div>
+    
+    <script src="js/notifications.js"></script>
+    <script type="module">
+        import { loginUser, continueAsGuest as guestMode } from './js/auth.js';
+        import { initTheme, toggleTheme as toggle } from './js/theme.js';
+        
+        // Initialize theme
+        initTheme();
+        
+        // Make toggleTheme available globally
+        window.toggleTheme = function() {
+            const newTheme = toggle();
+            const btn = document.querySelector('.theme-toggle');
+            btn.textContent = newTheme === 'dark' ? '☀️ Light Mode' : '🌙 Dark Mode';
+        };
+        
+        // Update button text based on current theme
+        const currentTheme = localStorage.getItem('gradeCalcTheme') || 'light';
+        const btn = document.querySelector('.theme-toggle');
+        btn.textContent = currentTheme === 'dark' ? '☀️ Light Mode' : '🌙 Dark Mode';
+        
+        // Handle login form submission
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const keepLoggedIn = document.getElementById('keepLoggedIn').checked;
+            
+            showLoading();
+            
+            const result = await loginUser(email, password, keepLoggedIn);
+            
+            hideLoading();
+            
+            if (result.success) {
+                showNotification('success', result.message);
+                setTimeout(() => {
+                    window.location.href = 'index.html';
+                }, 1500);
+            } else {
+                showNotification('error', result.message);
+            }
+        });
+        
+        // Handle guest mode
+        window.continueAsGuest = function() {
+            const result = guestMode();
+            showNotification('info', 'Continuing as guest. Some features will be restricted.');
+            setTimeout(() => {
+                window.location.href = 'index.html';
+            }, 1500);
+        };
+    </script>
+</body>
+</html>

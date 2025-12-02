@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grade Grapher - Grade Calculator 3.0</title>
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/dark-mode.css">
+    <link rel="stylesheet" href="css/components.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .grapher-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .grade-entry {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+            padding: 15px;
+            background: rgba(182, 206, 180, 0.2);
+            border-radius: 15px;
+            border: 2px solid var(--light-green);
+        }
+
+        .entry-number {
+            font-size: 1.5rem;
+            font-weight: 900;
+            color: var(--primary-green);
+            min-width: 50px;
+        }
+
+        .grade-entry .input-group {
+            flex: 1;
+            margin-bottom: 0;
+        }
+
+        .btn-remove {
+            background: var(--grade-1);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 10px;
+            font-size: 1.2rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-remove:hover {
+            background: #8B2E24;
+            transform: scale(1.1);
+        }
+
+        .btn-add {
+            background: linear-gradient(45deg, var(--light-green), var(--primary-green));
+            margin-bottom: 20px;
+        }
+
+        .chart-container-wrapper {
+            display: none;
+            margin-top: 30px;
+            padding: 30px;
+            background: var(--off-white);
+            border: 3px solid var(--light-green);
+            border-radius: 25px;
+            box-shadow: 0 10px 30px var(--shadow-light);
+        }
+
+        .chart-container-wrapper.show {
+            display: block;
+        }
+
+        #gradeChart {
+            max-height: 400px;
+        }
+
+        .download-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+            justify-content: center;
+        }
+
+        .download-buttons .btn {
+            width: auto;
+            padding: 15px 30px;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            font-size: 1.1rem;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="grapher-container">
+        <a href="index.html" class="back-link">← Back to Calculator</a>
+
+        <div class="card">
+            <h1 class="section-title">📊 Grade Grapher</h1>
+            <p style="text-align: center; margin-bottom: 20px; color: var(--primary-green); font-weight: 600;">
+                Enter your grades and their weights to visualize your grade progression
+            </p>
+
+            <div id="gradeEntriesContainer">
+                <!-- Grade entries will be added here -->
+            </div>
+
+            <button class="btn btn-add" onclick="addGradeEntry()">+ Add Grade Entry</button>
+
+            <button class="btn" onclick="generateGraph()">Generate Graph</button>
+        </div>
+
+        <div class="chart-container-wrapper" id="chartContainer">
+            <canvas id="gradeChart"></canvas>
+            <div class="download-buttons">
+                <button class="btn" onclick="downloadChart('png')">📥 Download as PNG</button>
+                <button class="btn" onclick="downloadChart('jpg')">📥 Download as JPG</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/notifications.js"></script>
+    <script type="module">
+        import { canAccessGrapher } from './js/grapher.js';
+        import { initTheme } from './js/theme.js';
+        import { onAuthChange, isGuest } from './js/auth.js';
+
+        // Initialize theme
+        initTheme();
+
+        // Check if user can access grapher
+        onAuthChange((user) => {
+            if (!user || isGuest()) {
+                showNotification('warning', 'Please login to access the Grade Grapher');
+                setTimeout(() => {
+                    window.location.href = 'login.html';
+                }, 2000);
+            }
+        });
+
+        // Add initial grade entry
+        window.addEventListener('DOMContentLoaded', () => {
+            if (canAccessGrapher()) {
+                addGradeEntry();
+                addGradeEntry();
+            }
+        });
+    </script>
+    <script src="js/grapher.js" type="module"></script>
+</body>
+
+</html>

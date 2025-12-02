@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register - Grade Calculator 3.0</title>
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/dark-mode.css">
+    <link rel="stylesheet" href="css/components.css">
+    <style>
+        .auth-container {
+            max-width: 500px;
+            margin: 50px auto;
+            background: var(--off-white);
+            border: 3px solid var(--light-green);
+            border-radius: 25px;
+            padding: 40px;
+            box-shadow: 0 10px 30px var(--shadow-light);
+        }
+
+        .auth-title {
+            text-align: center;
+            font-size: 2.5rem;
+            font-weight: 900;
+            margin-bottom: 30px;
+            color: var(--primary-green);
+        }
+
+        .password-requirements {
+            font-size: 0.9rem;
+            color: var(--grade-3);
+            margin-top: 5px;
+            font-weight: 600;
+        }
+
+        .auth-links {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .theme-toggle-auth {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+        }
+
+        .verification-section {
+            display: none;
+            margin-top: 20px;
+            padding: 20px;
+            background: rgba(182, 206, 180, 0.2);
+            border-radius: 15px;
+            text-align: center;
+        }
+
+        .verification-section.show {
+            display: block;
+        }
+
+        .verification-message {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--primary-green);
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+
+<body>
+    <button class="theme-toggle theme-toggle-auth" onclick="toggleTheme()">🌙 Dark Mode</button>
+
+    <div class="auth-container">
+        <h1 class="auth-title">Register</h1>
+
+        <form id="registerForm">
+            <div class="input-group">
+                <label class="input-label">Email:</label>
+                <input type="email" id="email" class="input-field" placeholder="your.email@example.com" required>
+            </div>
+
+            <div class="input-group">
+                <label class="input-label">Password:</label>
+                <input type="password" id="password" class="input-field" placeholder="Enter password" required>
+                <div class="password-requirements">
+                    ⚠️ Minimum 6 characters, at least 1 capital letter
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label class="input-label">Confirm Password:</label>
+                <input type="password" id="confirmPassword" class="input-field" placeholder="Re-enter password"
+                    required>
+            </div>
+
+            <button type="submit" class="btn">Register</button>
+        </form>
+
+        <div class="verification-section" id="verificationSection">
+            <div class="verification-message">
+                ✅ Registration successful!<br>
+                Please check your email and click the verification link to activate your account.
+            </div>
+            <button class="btn" onclick="window.location.href='login.html'">Go to Login</button>
+        </div>
+
+        <div class="auth-links">
+            <p>Already have an account? <a href="login.html">Login here</a></p>
+        </div>
+    </div>
+
+    <script src="js/notifications.js"></script>
+    <script type="module">
+        import { registerUser } from './js/auth.js';
+        import { initTheme, toggleTheme as toggle } from './js/theme.js';
+
+        // Initialize theme
+        initTheme();
+
+        // Make toggleTheme available globally
+        window.toggleTheme = function () {
+            const newTheme = toggle();
+            const btn = document.querySelector('.theme-toggle');
+            btn.textContent = newTheme === 'dark' ? '☀️ Light Mode' : '🌙 Dark Mode';
+        };
+
+        // Update button text based on current theme
+        const currentTheme = localStorage.getItem('gradeCalcTheme') || 'light';
+        const btn = document.querySelector('.theme-toggle');
+        btn.textContent = currentTheme === 'dark' ? '☀️ Light Mode' : '🌙 Dark Mode';
+
+        // Handle registration form submission
+        document.getElementById('registerForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+
+            showLoading();
+
+            const result = await registerUser(email, password, confirmPassword, true);
+
+            hideLoading();
+
+            if (result.success) {
+                showNotification('success', result.message);
+                // Show verification section
+                document.getElementById('registerForm').style.display = 'none';
+                document.getElementById('verificationSection').classList.add('show');
+            } else {
+                showNotification('error', result.message);
+            }
+        });
+    </script>
+</body>
+
+</html>

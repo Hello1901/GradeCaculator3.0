@@ -1,0 +1,944 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grade Calculator 3.0</title>
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/dark-mode.css">
+    <link rel="stylesheet" href="css/components.css">
+    <style>
+        .calculator-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        @media (max-width: 768px) {
+            .calculator-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .result-display {
+            background: rgba(182, 206, 180, 0.3);
+            border: 2px solid var(--light-green);
+            border-radius: 15px;
+            padding: 25px;
+            margin-top: 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .result-display.show {
+            border-color: var(--primary-green);
+            box-shadow: 0 0 20px var(--shadow-light);
+            background: rgba(17, 120, 100, 0.1);
+        }
+
+        .grade-result {
+            font-size: 4rem;
+            font-weight: 900;
+            margin-bottom: 10px;
+        }
+
+        .grade-description {
+            font-size: 1.3rem;
+            color: var(--primary-green);
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .percentage-display {
+            font-size: 1.1rem;
+            color: var(--text-dark);
+        }
+
+        .table-section {
+            background: var(--off-white);
+            border: 3px solid var(--light-green);
+            border-radius: 25px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px var(--shadow-light);
+        }
+
+        .table-controls {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .export-dropdown {
+            position: relative;
+        }
+
+        .export-btn {
+            padding: 18px 25px;
+            border: none;
+            border-radius: 20px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: white;
+        }
+
+        .export-btn.active {
+            background: #8E44AD;
+            box-shadow: 0 8px 25px rgba(142, 68, 173, 0.4);
+        }
+
+        .export-btn.inactive {
+            background: #95A5A6;
+            cursor: not-allowed;
+        }
+
+        .export-menu {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background: var(--off-white);
+            border: 2px solid #8E44AD;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px var(--shadow-dark);
+            display: none;
+            z-index: 1000;
+            min-width: 180px;
+        }
+
+        .export-menu.show {
+            display: block;
+        }
+
+        .export-menu button {
+            width: 100%;
+            padding: 12px 20px;
+            border: none;
+            background: transparent;
+            color: #8E44AD;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s ease;
+            text-align: left;
+        }
+
+        .export-menu button:hover {
+            background: rgba(142, 68, 173, 0.1);
+        }
+
+        .grade-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: var(--off-white);
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px var(--shadow-light);
+        }
+
+        .grade-table th {
+            background: linear-gradient(45deg, var(--primary-green), var(--grade-5));
+            color: white;
+            padding: 15px 10px;
+            text-align: center;
+            font-weight: 900;
+        }
+
+        .grade-table td {
+            padding: 12px 10px;
+            text-align: center;
+            border-bottom: 1px solid rgba(150, 167, 141, 0.3);
+        }
+
+        .grade-table tbody tr:hover {
+            background: rgba(182, 206, 180, 0.2);
+        }
+
+        .table-grade-5 {
+            background: rgba(17, 120, 100, 0.2) !important;
+            color: var(--grade-5) !important;
+            font-weight: 700;
+        }
+
+        .table-grade-4 {
+            background: rgba(31, 97, 141, 0.2) !important;
+            color: var(--grade-4) !important;
+            font-weight: 700;
+        }
+
+        .table-grade-3 {
+            background: rgba(212, 172, 13, 0.2) !important;
+            color: var(--grade-3) !important;
+            font-weight: 700;
+        }
+
+        .table-grade-2 {
+            background: rgba(202, 111, 30, 0.2) !important;
+            color: var(--grade-2) !important;
+            font-weight: 700;
+        }
+
+        .table-grade-1 {
+            background: rgba(176, 58, 46, 0.2) !important;
+            color: var(--grade-1) !important;
+            font-weight: 700;
+        }
+
+        .table-container {
+            max-height: 400px;
+            overflow-y: auto;
+            margin-top: 20px;
+            border-radius: 15px;
+        }
+
+        .presets-dropdown {
+            position: relative;
+        }
+
+        .presets-btn {
+            background: var(--primary-green);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 25px;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 5px 15px var(--shadow-light);
+            transition: all 0.3s ease;
+        }
+
+        .presets-btn:hover {
+            background: var(--grade-5);
+            transform: translateY(-2px);
+        }
+
+        .presets-menu {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background: var(--off-white);
+            border: 2px solid var(--light-green);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px var(--shadow-dark);
+            display: none;
+            z-index: 1000;
+            min-width: 200px;
+        }
+
+        .presets-menu.show {
+            display: block;
+        }
+
+        .presets-menu button {
+            width: 100%;
+            padding: 12px 20px;
+            border: none;
+            background: transparent;
+            color: var(--primary-green);
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s ease;
+            text-align: left;
+        }
+
+        .presets-menu button:hover {
+            background: var(--pale-green);
+        }
+
+        .hidden-input {
+            display: none;
+        }
+
+        .footer {
+            margin-top: 50px;
+            padding: 30px;
+            background: var(--off-white);
+            border-radius: 25px;
+            border: 3px solid var(--light-green);
+            box-shadow: 0 10px 30px var(--shadow-light);
+            text-align: center;
+        }
+
+        .footer h2 {
+            font-size: 1.5rem;
+            font-weight: 900;
+            color: var(--primary-green);
+            margin-bottom: 15px;
+        }
+
+        .copyright {
+            font-size: 0.9rem;
+            color: var(--text-dark);
+            line-height: 1.6;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .validation-error {
+            background: rgba(176, 58, 46, 0.2);
+            border: 2px solid var(--grade-1);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+            color: var(--grade-1);
+            font-weight: 600;
+        }
+
+        .validation-success {
+            background: rgba(17, 120, 100, 0.2);
+            border: 2px solid var(--grade-5);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+            color: var(--grade-5);
+            font-weight: 600;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <!-- Header Section -->
+        <div class="header-section">
+            <div class="presets-dropdown">
+                <button class="presets-btn" onclick="togglePresets()">📋 Presets</button>
+                <div class="presets-menu" id="presetsMenu">
+                    <button onclick="resetGrading()">🔄 Reset</button>
+                    <button onclick="showSavePresetDialog()">💾 Save Preset</button>
+                    <button onclick="showLoadPresetDialog()">📂 Load Preset</button>
+                    <button onclick="exportPresetFile()">📤 Export File</button>
+                    <button onclick="importPresetFile()">📥 Import File</button>
+                </div>
+                <input type="file" id="fileInput" class="hidden-input" accept=".json,.countkit"
+                    onchange="handleFileImport(event)">
+            </div>
+
+            <div class="logo-section">
+                <div class="logo">
+                    <img src="assets/calculator-icon.png" alt="Calculator Icon" onerror="this.style.display='none'">
+                </div>
+                <h1 class="title">Grade Calculator 3.0</h1>
+                <p class="subtitle">Hungarian Grading System</p>
+            </div>
+
+            <div class="nav-links">
+                <button class="theme-toggle" onclick="toggleThemeBtn()">🌙 Dark Mode</button>
+                <div class="user-profile" id="userProfile">
+                    <span class="user-email" id="userEmail">Guest</span>
+                    <button class="btn-logout" id="logoutBtn" onclick="handleLogout()"
+                        style="display: none;">Logout</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Validation Messages -->
+        <div id="validationMessages"></div>
+
+        <!-- Custom Grading System -->
+        <div class="card">
+            <h2 class="section-title">Hungarian Grading System (Customizable)</h2>
+
+            <div class="grade-row">
+                <div class="grade-number grade-5-bg">5</div>
+                <div class="grade-name">Jeles (Excellent)</div>
+                <div class="grade-range">
+                    <input type="number" class="range-input" id="grade5-min" value="91" min="0" max="100">
+                    <span>-</span>
+                    <input type="number" class="range-input" id="grade5-max" value="100" min="0" max="100">
+                    <span>%</span>
+                </div>
+            </div>
+
+            <div class="grade-row">
+                <div class="grade-number grade-4-bg">4</div>
+                <div class="grade-name">Jó (Good)</div>
+                <div class="grade-range">
+                    <input type="number" class="range-input" id="grade4-min" value="75" min="0" max="100">
+                    <span>-</span>
+                    <input type="number" class="range-input" id="grade4-max" value="90" min="0" max="100">
+                    <span>%</span>
+                </div>
+            </div>
+
+            <div class="grade-row">
+                <div class="grade-number grade-3-bg">3</div>
+                <div class="grade-name">Közepes (Average)</div>
+                <div class="grade-range">
+                    <input type="number" class="range-input" id="grade3-min" value="60" min="0" max="100">
+                    <span>-</span>
+                    <input type="number" class="range-input" id="grade3-max" value="74" min="0" max="100">
+                    <span>%</span>
+                </div>
+            </div>
+
+            <div class="grade-row">
+                <div class="grade-number grade-2-bg">2</div>
+                <div class="grade-name">Elégséges (Sufficient)</div>
+                <div class="grade-range">
+                    <input type="number" class="range-input" id="grade2-min" value="40" min="0" max="100">
+                    <span>-</span>
+                    <input type="number" class="range-input" id="grade2-max" value="59" min="0" max="100">
+                    <span>%</span>
+                </div>
+            </div>
+
+            <div class="grade-row">
+                <div class="grade-number grade-1-bg">1</div>
+                <div class="grade-name">Elégtelen (Insufficient)</div>
+                <div class="grade-range">
+                    <input type="number" class="range-input" id="grade1-min" value="0" min="0" max="100">
+                    <span>-</span>
+                    <input type="number" class="range-input" id="grade1-max" value="39" min="0" max="100">
+                    <span>%</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Calculator Grid -->
+        <div class="calculator-grid">
+            <!-- Score to Grade Calculator -->
+            <div class="card">
+                <h2 class="section-title">📊 Score to Grade</h2>
+                <div class="input-group">
+                    <label class="input-label">Your Score (points):</label>
+                    <input type="number" id="score" class="input-field" placeholder="85" min="0">
+                </div>
+                <div class="input-group">
+                    <label class="input-label">Maximum Score (points):</label>
+                    <input type="number" id="maxScore" class="input-field" placeholder="100" min="1">
+                </div>
+                <button class="btn" onclick="calculateGradeFromScore()">Calculate Grade</button>
+                <div class="result-display" id="scoreResult">
+                    <div>Enter your score to see your grade</div>
+                </div>
+            </div>
+
+            <!-- Percentage to Grade Calculator -->
+            <div class="card">
+                <h2 class="section-title">📈 Percentage to Grade</h2>
+                <div class="input-group">
+                    <label class="input-label">Your Percentage (%):</label>
+                    <input type="number" id="percentage" class="input-field" placeholder="80" min="0" max="100">
+                </div>
+                <div class="input-group">
+                    <label class="input-label">Maximum Points (for reference):</label>
+                    <input type="number" id="maxPoints" class="input-field" placeholder="80" min="1">
+                </div>
+                <button class="btn" onclick="calculateGradeFromPercentage()">Calculate Grade</button>
+                <div class="result-display" id="percentageResult">
+                    <div>Enter your percentage to see your grade</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Grade Grapher Link -->
+        <div class="card">
+            <h2 class="section-title">📊 Grade Grapher</h2>
+            <p style="text-align: center; margin-bottom: 20px; color: var(--primary-green); font-weight: 600;">
+                Visualize your grade progression with weighted averages
+            </p>
+            <button class="btn" onclick="openGrapher()">Open Grade Grapher</button>
+        </div>
+
+        <!-- Grade Table Generator -->
+        <div class="table-section">
+            <h2 class="section-title">📋 Grade Table Generator</h2>
+            <div class="table-controls">
+                <div class="input-group" style="margin-bottom: 0; flex: 1; max-width: 300px;">
+                    <label class="input-label">Maximum Possible Score:</label>
+                    <input type="number" id="tableMaxScore" class="input-field" placeholder="100" min="1" max="1000">
+                </div>
+                <button class="btn" onclick="generateGradeTable()" style="width: auto; padding: 18px 30px;">Generate
+                    Table</button>
+                <div class="export-dropdown">
+                    <button class="export-btn inactive" id="exportBtn" onclick="toggleExportMenu()">📤 Export
+                        Table</button>
+                    <div class="export-menu" id="exportMenu">
+                        <button onclick="exportTable('sheets')">📊 Google Sheets</button>
+                        <button onclick="exportTable('excel')">📈 Excel (.csv)</button>
+                        <button onclick="exportTable('txt')">📄 Text File (.txt)</button>
+                    </div>
+                </div>
+            </div>
+            <div class="table-container" id="tableContainer" style="display: none;">
+                <table class="grade-table" id="gradeTable">
+                    <thead>
+                        <tr>
+                            <th>Score</th>
+                            <th>Percentage</th>
+                            <th>Grade</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <h2>MADE BY: DOMINIK</h2>
+            <div class="copyright">
+                © 2024 Grade Calculator 3.0. All rights reserved.<br>
+                This software is protected by copyright law.<br>
+                <strong>Licensed exclusively to the original user.</strong>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/notifications.js"></script>
+    <script type="module">
+        import { onAuthChange, getCurrentUser, logoutUser, isGuest, isAuthenticated } from './js/auth.js';
+        import { initTheme, toggleTheme } from './js/theme.js';
+        import { validateAllGradeRanges, setupRealTimeValidation } from './js/validation.js';
+        import { savePreset, loadPresets, loadPreset, deletePreset, exportPresetToFile, importPresetFromFile } from './js/presets.js';
+
+        // Global variables
+        let gradeThresholds = {
+            5: { min: 91, max: 100, name: "Jeles", description: "Excellent" },
+            4: { min: 75, max: 90, name: "Jó", description: "Good" },
+            3: { min: 60, max: 74, name: "Közepes", description: "Average" },
+            2: { min: 40, max: 59, name: "Elégséges", description: "Sufficient" },
+            1: { min: 0, max: 39, name: "Elégtelen", description: "Insufficient" }
+        };
+
+        let currentTableData = null;
+
+        // Initialize theme
+        initTheme();
+
+        // Update theme button text
+        const currentTheme = localStorage.getItem('gradeCalcTheme') || 'light';
+        const themeBtn = document.querySelector('.theme-toggle');
+        themeBtn.textContent = currentTheme === 'dark' ? '☀️ Light Mode' : '🌙 Dark Mode';
+
+        // Theme toggle function
+        window.toggleThemeBtn = function () {
+            const newTheme = toggleTheme();
+            themeBtn.textContent = newTheme === 'dark' ? '☀️ Light Mode' : '🌙 Dark Mode';
+        };
+
+        // Monitor auth state
+        onAuthChange((user) => {
+            const userEmail = document.getElementById('userEmail');
+            const logoutBtn = document.getElementById('logoutBtn');
+
+            if (user && !isGuest()) {
+                userEmail.textContent = user.email;
+                logoutBtn.style.display = 'block';
+            } else if (isGuest()) {
+                userEmail.textContent = 'Guest Mode';
+                logoutBtn.style.display = 'none';
+            } else {
+                // Not logged in, redirect to login
+                window.location.href = 'login.html';
+            }
+        });
+
+        // Logout handler
+        window.handleLogout = async function () {
+            const result = await logoutUser();
+            if (result.success) {
+                showNotification('success', result.message);
+                setTimeout(() => {
+                    window.location.href = 'login.html';
+                }, 1000);
+            }
+        };
+
+        // Setup real-time validation
+        setupRealTimeValidation(gradeThresholds, (validation) => {
+            const messagesDiv = document.getElementById('validationMessages');
+            if (!validation.valid) {
+                messagesDiv.innerHTML = `<div class="validation-error">⚠️ ${validation.errors.join('<br>')}</div>`;
+                showNotification('error', validation.errors[0]);
+            } else {
+                messagesDiv.innerHTML = '<div class="validation-success">✓ All grade ranges are valid</div>';
+            }
+        });
+
+        // Preset Functions
+        window.togglePresets = function () {
+            const menu = document.getElementById('presetsMenu');
+            menu.classList.toggle('show');
+
+            document.addEventListener('click', function (e) {
+                if (!e.target.closest('.presets-dropdown')) {
+                    menu.classList.remove('show');
+                }
+            }, { once: true });
+        };
+
+        window.resetGrading = function () {
+            gradeThresholds = {
+                5: { min: 91, max: 100, name: "Jeles", description: "Excellent" },
+                4: { min: 75, max: 90, name: "Jó", description: "Good" },
+                3: { min: 60, max: 74, name: "Közepes", description: "Average" },
+                2: { min: 40, max: 59, name: "Elégséges", description: "Sufficient" },
+                1: { min: 0, max: 39, name: "Elégtelen", description: "Insufficient" }
+            };
+            updateGradeInputs();
+            document.getElementById('presetsMenu').classList.remove('show');
+            showNotification('success', 'Grading system reset to default values!');
+        };
+
+        window.showSavePresetDialog = async function () {
+            if (!isAuthenticated()) {
+                showNotification('warning', 'Please login to save presets to the cloud');
+                return;
+            }
+
+            const validation = validateAllGradeRanges(gradeThresholds);
+            if (!validation.valid) {
+                showNotification('error', 'Please fix validation errors before saving');
+                return;
+            }
+
+            const presetName = prompt('Enter a name for this preset:');
+            if (presetName) {
+                showLoading();
+                const result = await savePreset(presetName, gradeThresholds);
+                hideLoading();
+
+                if (result.success) {
+                    showNotification('success', result.message);
+                } else {
+                    showNotification('error', result.message);
+                }
+            }
+            document.getElementById('presetsMenu').classList.remove('show');
+        };
+
+        window.showLoadPresetDialog = async function () {
+            showLoading();
+            const result = await loadPresets();
+            hideLoading();
+
+            if (result.success && result.presets.length > 0) {
+                let presetList = 'Available presets:\n\n';
+                result.presets.forEach((preset, index) => {
+                    presetList += `${index + 1}. ${preset.name}\n`;
+                });
+                presetList += '\nEnter the number of the preset to load:';
+
+                const choice = prompt(presetList);
+                const index = parseInt(choice) - 1;
+
+                if (index >= 0 && index < result.presets.length) {
+                    const presetName = result.presets[index].name || result.presets[index].id;
+                    showLoading();
+                    const loadResult = await loadPreset(presetName);
+                    hideLoading();
+
+                    if (loadResult.success) {
+                        gradeThresholds = loadResult.gradeThresholds;
+                        updateGradeInputs();
+                        showNotification('success', 'Preset loaded successfully!');
+                    } else {
+                        showNotification('error', loadResult.message);
+                    }
+                }
+            } else {
+                showNotification('info', 'No presets found');
+            }
+            document.getElementById('presetsMenu').classList.remove('show');
+        };
+
+        window.exportPresetFile = function () {
+            exportPresetToFile(gradeThresholds);
+            showNotification('success', 'Preset exported to file!');
+            document.getElementById('presetsMenu').classList.remove('show');
+        };
+
+        window.importPresetFile = function () {
+            document.getElementById('fileInput').click();
+            document.getElementById('presetsMenu').classList.remove('show');
+        };
+
+        window.handleFileImport = function (event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            importPresetFromFile(file, (result) => {
+                if (result.success) {
+                    gradeThresholds = result.gradeThresholds;
+                    updateGradeInputs();
+                    showNotification('success', 'Preset imported successfully!');
+                } else {
+                    showNotification('error', result.message);
+                }
+            });
+        };
+
+        // Update grade inputs
+        function updateGradeInputs() {
+            for (let grade = 1; grade <= 5; grade++) {
+                document.getElementById(`grade${grade}-min`).value = gradeThresholds[grade].min;
+                document.getElementById(`grade${grade}-max`).value = gradeThresholds[grade].max;
+            }
+        }
+
+        // Calculator Functions
+        function percentageToGrade(percentage) {
+            for (let grade = 5; grade >= 1; grade--) {
+                if (percentage >= gradeThresholds[grade].min && percentage <= gradeThresholds[grade].max) {
+                    return {
+                        grade: grade,
+                        name: gradeThresholds[grade].name,
+                        description: gradeThresholds[grade].description,
+                        percentage: Math.round(percentage * 100) / 100
+                    };
+                }
+            }
+            return {
+                grade: 1,
+                name: gradeThresholds[1].name,
+                description: gradeThresholds[1].description,
+                percentage: Math.round(percentage * 100) / 100
+            };
+        }
+
+        window.calculateGradeFromScore = function () {
+            const score = parseFloat(document.getElementById('score').value);
+            const maxScore = parseFloat(document.getElementById('maxScore').value);
+            const resultDiv = document.getElementById('scoreResult');
+
+            if (isNaN(score) || isNaN(maxScore) || maxScore <= 0) {
+                showNotification('warning', 'Please enter valid numbers!');
+                return;
+            }
+
+            if (score < 0) {
+                showNotification('error', 'Score cannot be negative!');
+                return;
+            }
+
+            if (score > maxScore) {
+                showNotification('error', 'Score cannot be higher than maximum score!');
+                return;
+            }
+
+            const percentage = (score / maxScore) * 100;
+            const gradeInfo = percentageToGrade(percentage);
+
+            displayResult(resultDiv, gradeInfo, `${score}/${maxScore} points`);
+        };
+
+        window.calculateGradeFromPercentage = function () {
+            const percentage = parseFloat(document.getElementById('percentage').value);
+            const maxPoints = parseFloat(document.getElementById('maxPoints').value);
+            const resultDiv = document.getElementById('percentageResult');
+
+            if (isNaN(percentage)) {
+                showNotification('warning', 'Please enter a valid percentage!');
+                return;
+            }
+
+            if (percentage < 0 || percentage > 100) {
+                showNotification('error', 'Percentage must be between 0 and 100!');
+                return;
+            }
+
+            const gradeInfo = percentageToGrade(percentage);
+            const pointsInfo = maxPoints && !isNaN(maxPoints) ?
+                `${Math.round((percentage / 100) * maxPoints)}/${maxPoints} points` :
+                `${percentage}%`;
+
+            displayResult(resultDiv, gradeInfo, pointsInfo);
+        };
+
+        function displayResult(resultDiv, gradeInfo, extraInfo) {
+            const gradeColor = `var(--grade-${gradeInfo.grade})`;
+            resultDiv.innerHTML = `
+                <div class="grade-result" style="color: ${gradeColor};">${gradeInfo.grade}</div>
+                <div class="grade-description">${gradeInfo.name} (${gradeInfo.description})</div>
+                <div class="percentage-display">${extraInfo} = ${gradeInfo.percentage}%</div>
+            `;
+            resultDiv.classList.add('show');
+
+            setTimeout(() => {
+                resultDiv.classList.remove('show');
+            }, 5000);
+        }
+
+        // Table Functions
+        window.generateGradeTable = function () {
+            const maxScore = parseInt(document.getElementById('tableMaxScore').value);
+            const tableContainer = document.getElementById('tableContainer');
+            const tableBody = document.getElementById('tableBody');
+            const exportBtn = document.getElementById('exportBtn');
+
+            if (isNaN(maxScore) || maxScore <= 0 || maxScore > 1000) {
+                showNotification('warning', 'Please enter a valid maximum score (1-1000)!');
+                return;
+            }
+
+            tableBody.innerHTML = '';
+            showLoading();
+
+            setTimeout(() => {
+                const fragment = document.createDocumentFragment();
+                const tableData = [];
+
+                for (let score = 0; score <= maxScore; score++) {
+                    const percentage = (score / maxScore) * 100;
+                    const gradeInfo = percentageToGrade(percentage);
+
+                    const rowData = {
+                        score: score,
+                        percentage: gradeInfo.percentage,
+                        grade: gradeInfo.grade,
+                        description: `${gradeInfo.name} (${gradeInfo.description})`
+                    };
+                    tableData.push(rowData);
+
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td><strong>${score}</strong></td>
+                        <td>${gradeInfo.percentage}%</td>
+                        <td class="table-grade-${gradeInfo.grade}"><strong>${gradeInfo.grade}</strong></td>
+                        <td>${gradeInfo.name} (${gradeInfo.description})</td>
+                    `;
+
+                    fragment.appendChild(row);
+                }
+
+                tableBody.appendChild(fragment);
+                tableContainer.style.display = 'block';
+                tableContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+                exportBtn.classList.remove('inactive');
+                exportBtn.classList.add('active');
+
+                currentTableData = tableData;
+
+                hideLoading();
+                showNotification('success', 'Grade table generated successfully!');
+            }, 300);
+        };
+
+        window.toggleExportMenu = function () {
+            const exportBtn = document.getElementById('exportBtn');
+            if (exportBtn.classList.contains('inactive')) {
+                return;
+            }
+
+            const menu = document.getElementById('exportMenu');
+            menu.classList.toggle('show');
+
+            document.addEventListener('click', function (e) {
+                if (!e.target.closest('.export-dropdown')) {
+                    menu.classList.remove('show');
+                }
+            }, { once: true });
+        };
+
+        window.exportTable = function (format) {
+            if (!currentTableData) {
+                showNotification('warning', 'Please generate a table first!');
+                return;
+            }
+
+            const fileName = `grade-table-${new Date().toISOString().split('T')[0]}`;
+
+            switch (format) {
+                case 'sheets':
+                case 'excel':
+                    exportToCSV(fileName);
+                    break;
+                case 'txt':
+                    exportToTXT(fileName);
+                    break;
+            }
+
+            document.getElementById('exportMenu').classList.remove('show');
+        };
+
+        function exportToCSV(fileName) {
+            let csvContent = "Score,Percentage,Grade,Description\n";
+            currentTableData.forEach(row => {
+                csvContent += `${row.score},${row.percentage}%,${row.grade},"${row.description}"\n`;
+            });
+
+            const blob = new Blob([csvContent], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${fileName}.csv`;
+            a.click();
+            URL.revokeObjectURL(url);
+
+            showNotification('success', 'Table exported as CSV!');
+        }
+
+        function exportToTXT(fileName) {
+            let content = "Grade Calculator 3.0 - Grade Table\n";
+            content += "=".repeat(50) + "\n\n";
+            content += "Score\tPercentage\tGrade\tDescription\n";
+            content += "-".repeat(50) + "\n";
+
+            currentTableData.forEach(row => {
+                content += `${row.score}\t${row.percentage}%\t\t${row.grade}\t${row.description}\n`;
+            });
+
+            content += "\n" + "-".repeat(50) + "\n";
+            content += `Generated on: ${new Date().toLocaleDateString()}\n`;
+            content += "Made by: DOMINIK\n";
+
+            const blob = new Blob([content], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${fileName}.txt`;
+            a.click();
+            URL.revokeObjectURL(url);
+
+            showNotification('success', 'Table exported as TXT!');
+        }
+
+        // Open grapher
+        window.openGrapher = function () {
+            if (!isAuthenticated()) {
+                showNotification('warning', 'Please login to access the Grade Grapher');
+                setTimeout(() => {
+                    window.location.href = 'login.html';
+                }, 2000);
+                return;
+            }
+            window.location.href = 'grapher.html';
+        };
+
+        // Keyboard events
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter') {
+                const activeElement = document.activeElement;
+                if (activeElement.id === 'score' || activeElement.id === 'maxScore') {
+                    calculateGradeFromScore();
+                } else if (activeElement.id === 'percentage' || activeElement.id === 'maxPoints') {
+                    calculateGradeFromPercentage();
+                } else if (activeElement.id === 'tableMaxScore') {
+                    generateGradeTable();
+                }
+            }
+        });
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function () {
+            updateGradeInputs();
+        });
+    </script>
+</body>
+
+</html>
